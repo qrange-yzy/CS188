@@ -506,12 +506,14 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     for x in range(m):
         for y in range(n):
+            if grid_copy[y+1][x+1]:
+                dfs(y+1,x+1)
+                branch += 1
+    for x in range(m):
+        for y in range(n):
             if foodGrid[x][y]:
                 ans += 1  
                 dist = min(dist,manhattanDistance((x,y),position))
-                dfs(y+1,x+1)
-                branch += 1
-              
     return ans + dist -1 + branch - 1  if dist != float("inf") else 0
 
 
