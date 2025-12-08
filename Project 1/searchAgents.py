@@ -487,12 +487,32 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         return abs(pos[0]-c[0]) + abs(pos[1]-c[1])
     ans = 0
     dist = float("inf")
-    for x in range(foodGrid.width):
-        for y in range(foodGrid.height):
+    #模仿晶矿写一个dfs
+    branch = 0
+    dire = [[-1,0], [1,0], [0,-1], [0,1]]
+    def dfs(x,y):
+        grid_copy[x][y] = False
+        for i in range(len(dire)):
+            tx = x + dire[i][0]
+            ty = y + dire[i][1]
+            if grid_copy[tx][ty]:
+                dfs(tx, ty)
+    m = foodGrid.width
+    n = foodGrid.height
+    grid_copy = [[False for _ in range(m+2)] for _ in range(n+2)]
+    for x in range(m):
+        for y in range(n):
+            grid_copy[y+1][x+1] = foodGrid[x][y]
+
+    for x in range(m):
+        for y in range(n):
             if foodGrid[x][y]:
                 ans += 1  
-                dist = min(dist,manhattanDistance((x,y),position))     
-    return ans + dist -1 if dist != float("inf") else 0
+                dist = min(dist,manhattanDistance((x,y),position))
+                dfs(y+1,x+1)
+                branch += 1
+              
+    return ans + dist -1 + branch - 1  if dist != float("inf") else 0
 
 
 class ClosestDotSearchAgent(SearchAgent):
