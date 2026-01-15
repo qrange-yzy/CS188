@@ -156,9 +156,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        if gameState.isWin() or gameState.isLose:
-            return
+        numghost = gameState.getNumAgents() - 1
+        n = self.depth 
         
+        def maximize(gameState,depth,numghost):
+            if gameState.isWin() or gameState.isLose():
+                return self.evaluationFunction(gameState)
+            maxVal = float("-inf")
+            best_action = Directions.STOP
+            for action in gameState.getLegalActions(0):
+                successor = gameState.generateSuccessor(0,action)
+                temp = minimize(successor,depth,1,numghost)
+                if temp > maxVal:
+                    maxVal = temp
+                    best_action = action
+            if depth > 1:
+                return maxVal
+            return best_action
+        def minimize(gameState,depth,ghost_index,numghost):#不需要知道它们的action,它们也不一定这样action,这是我们假想的
+            if gameState.isWin() or gameState.isLose():
+                return self.evaluationFunction(gameState)
+            minVal = float("inf")
+            legal_action = gameState.getLegalActions(ghost_index)
+            successors = [gameState.generateSuccessor(ghost_index, action) for action in legal_action]
+            if ghost_index == numghost:
+                if depth < n:
+                    for successor in successors:
+                        minVal = min(minVal,maximize(successor,depth+1,numghost))
+                else:
+                    for successor in successors:
+                        minVal = min(minVal,self.evaluationFunction(successor))        
+            else:
+                for successor in successors:
+                    minVal = min(minVal,minimize(successor,depth,ghost_index+1,numghost))
+            return minVal
+        return maximize(gameState,1,numghost)
+#我手抄了一遍,这不够,但我不知道我还需要干什么
+                    
+
+
+
+
+            
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
